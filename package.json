@@ -1,0 +1,42 @@
+{
+  "name": "pino-cloudwatch-metrics",
+  "version": "0.0.0",
+  "author": "David Wittman",
+  "license": "Apache-2.0",
+  "description": "Pino plugin for AWS CloudWatch metrics using Embedded Metric Format (EMF)",
+  "type": "module",
+  "engines": {
+    "node": ">= 18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.12",
+    "typescript": "~5.7",
+    "vitest": "^4.0.0",
+    "pino": "^10.1.0",
+    "@eslint/js": "^9.38.0",
+    "@vitest/coverage-v8": "^4.0.0",
+    "@vitest/eslint-plugin": "^1.3.23",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "typescript-eslint": "^8.46.2"
+  },
+  "scripts": {
+    "clean": "rm -rf ./dist",
+    "prebuild": "npm run lint",
+    "build": "tsc -p tsconfig.json",
+    "build:release": "npm run clean && tsc -p tsconfig.release.json",
+    "lint": "eslint .",
+    "test": "vitest run unit integration --config tests/vitest.config.ts",
+    "test:unit": "vitest run unit --config tests/vitest.config.ts",
+    "test:coverage": "vitest run unit --config tests/vitest.config.ts --coverage.enabled --coverage.all",
+    "test:integration": "vitest run integration --config tests/vitest.config.ts",
+    "prettier": "prettier \"{src,tests}/**/*.{ts,mts}\" --config .prettierrc --write",
+    "prettier:check": "prettier \"{src,tests}/**/*.{ts,mts}\" --config .prettierrc --check",
+    "test:watch": "vitest unit",
+    "prepublishOnly": "npm run build:release"
+  },
+  "peerDependencies": {
+    "pino": ">= 8.0.0 <11.0.0"
+  }
+}

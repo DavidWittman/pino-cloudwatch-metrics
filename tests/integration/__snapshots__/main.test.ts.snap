@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`pinoCloudwatchMetrics > should log a metric in a custom namespace 1`] = `
+"{"level":50,"time":1735689600000,"_aws":{"Timestamp":1735689600000,"CloudWatchMetrics":[{"Namespace":"MilkService","Dimensions":[[]],"Metrics":[{"Name":"Latency","Unit":"Seconds"},{"Name":"FileSize","Unit":"Megabytes"}]}]},"Latency":4,"FileSize":42,"msg":"Test error log in custom namespace"}
+"
+`;
+
+exports[`pinoCloudwatchMetrics > should log a metric with multiple dimensions in a custom namespace using .namespace() 1`] = `
+"{"level":30,"time":1735689600000,"_aws":{"Timestamp":1735689600000,"CloudWatchMetrics":[{"Namespace":"MilkService/Metrics","Dimensions":[["ServiceName","Region"]],"Metrics":[{"Name":"Latency","Unit":"Milliseconds"},{"Name":"RequestCount","Unit":"None"}]}]},"ServiceName":"MilkService","Region":"us-east-1","Latency":200,"RequestCount":5,"requestId":"a9b2b1ea-0e9b-4e7e-8827-282d6d6ba659","msg":"Test log with dimensions"}
+"
+`;
+
+exports[`pinoCloudwatchMetrics > should log a metric with no dimensions 1`] = `
+"{"level":30,"time":1735689600000,"_aws":{"Timestamp":1735689600000,"CloudWatchMetrics":[{"Namespace":"Pino","Dimensions":[[]],"Metrics":[{"Name":"Latency","Unit":"Milliseconds"},{"Name":"RequestCount","Unit":"None"}]}]},"Latency":200,"RequestCount":5,"msg":"Test log with no dimensions in default namespace"}
+"
+`;
