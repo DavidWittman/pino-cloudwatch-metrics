@@ -9,13 +9,7 @@ import {
   MetricBuilder,
 } from './types.js'
 
-/**
- * 
- * logger
-    .metric({ Latency: { value: 123, unit: "Milliseconds" } })
-    .dimensions({ ServiceName: "AuthService", Region: "us-east-1" })
-    .info({ requestId: "abc123" }, "Processed login");
- */
+export * from './types.js'
 
 function buildEMF({
   metrics,
@@ -38,6 +32,11 @@ function buildEMF({
     ]),
   )
 
+  // Stringify dimension values as required by AWS EMF format
+  const stringifiedDimensions = Object.fromEntries(
+    Object.entries(dimensions).map(([key, value]) => [key, String(value)]),
+  )
+
   return {
     _aws: {
       Timestamp: Date.now(),
@@ -49,7 +48,7 @@ function buildEMF({
         },
       ],
     },
-    ...dimensions,
+    ...stringifiedDimensions,
     ...metricValues,
   }
 }

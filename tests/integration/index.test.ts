@@ -72,6 +72,7 @@ describe('pinoCloudwatchMetrics', () => {
       .dimensions({
         ServiceName: 'MilkService',
         Region: 'us-east-1',
+        SomeIdentifier: 123,
       })
       .namespace('MilkService/Metrics')
       .info(

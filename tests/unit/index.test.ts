@@ -72,6 +72,28 @@ describe('pinoCloudwatchMetrics', () => {
 
       expect(typeof result.info).toBe('function')
     })
+
+    it('should stringify dimension values for EMF format', () => {
+      logger
+        .metric({ RequestCount: 1 })
+        .dimensions({
+          ServiceName: 'AuthService',
+          Port: 8080,
+          UserId: 12345,
+        })
+        .info('Testing dimension stringification')
+
+      expect(mockLogger.info).toHaveBeenCalledTimes(1)
+
+      const [logObject] = mockLogger.info.mock.calls[0] as any
+      // All dimension values should be strings
+      expect(logObject.ServiceName).toBe('AuthService')
+      expect(logObject.Port).toBe('8080')
+      expect(logObject.UserId).toBe('12345')
+      // Verify numeric dimensions are converted to strings
+      expect(typeof logObject.Port).toBe('string')
+      expect(typeof logObject.UserId).toBe('string')
+    })
   })
 
   describe('namespace method', () => {
