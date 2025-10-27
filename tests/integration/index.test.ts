@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { pinoCloudwatchMetrics } from '../../src/main.js'
+import { pinoCloudwatchMetrics } from '../../src/index.js'
 import { Unit } from '../../src/types.js'
 import pino from 'pino'
 import path from 'path'

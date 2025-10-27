@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { describe, it, beforeEach, vi, expect, Mocked } from 'vitest'
-import { pinoCloudwatchMetrics } from '../../src/main.js'
+import { pinoCloudwatchMetrics } from '../../src/index.js'
 import { MetricLogger, Unit } from '../../src/types.js'
 import { Logger } from 'pino'
 

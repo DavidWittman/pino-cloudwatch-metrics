@@ -5,3 +5,4 @@ dist/
 .npm
 .eslintcache
 .DS_Store
+*.tgz

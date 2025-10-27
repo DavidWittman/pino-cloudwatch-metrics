@@ -5,6 +5,11 @@
   "license": "Apache-2.0",
   "description": "Pino plugin for AWS CloudWatch metrics using Embedded Metric Format (EMF)",
   "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">= 18"
   },
