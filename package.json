@@ -4,6 +4,7 @@
   "author": "David Wittman",
   "license": "Apache-2.0",
   "description": "Pino plugin for AWS CloudWatch metrics using Embedded Metric Format (EMF)",
+  "repository": "github:DavidWittman/pino-cloudwatch-metrics",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
