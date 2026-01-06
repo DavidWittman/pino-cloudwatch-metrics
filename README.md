@@ -38,6 +38,30 @@ logger.metric({
 .info('Processed request')
 ```
 
+### Incrementing Count Metrics
+
+For the common use case of incrementing a count metric, use the `.increment()` method as a shorthand:
+
+```typescript
+// Instead of writing this:
+logger.metric({ 
+  RequestCount: { value: 1, unit: Unit.Count } 
+}).info('Request processed')
+
+// You can simply write:
+logger.increment('RequestCount').info('Request processed')
+```
+
+The `.increment()` method automatically creates a metric with a value of 1 and unit of `Count`. It supports the same chaining as `.metric()`:
+
+```typescript
+logger
+  .increment('LoginAttempts')
+  .dimensions({ ServiceName: 'AuthService', Environment: 'production' })
+  .namespace('MyApp/Auth')
+  .info('User login attempt')
+```
+
 ### Custom Namespace
 
 ```typescript

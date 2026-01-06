@@ -115,6 +115,126 @@ describe('pinoCloudwatchMetrics', () => {
     })
   })
 
+  describe('increment method', () => {
+    it('should exist on the logger', () => {
+      expect(typeof logger.increment).toBe('function')
+    })
+
+    it('should accept a single metric name', () => {
+      const metricBuilder = logger.increment('RequestCount')
+
+      expect(typeof metricBuilder).toBe('object')
+      expect(typeof metricBuilder.dimensions).toBe('function')
+      expect(typeof metricBuilder.namespace).toBe('function')
+      expect(typeof metricBuilder.info).toBe('function')
+    })
+
+    it('should create a metric with value 1 and unit Count', () => {
+      logger.increment('ErrorCount').info('An error occurred')
+
+      expect(mockLogger.info).toHaveBeenCalledTimes(1)
+
+      const [logObject] = mockLogger.info.mock.calls[0] as any
+      expect(logObject.ErrorCount).toBe(1)
+      expect(logObject._aws.CloudWatchMetrics[0].Metrics[0]).toEqual({
+        Name: 'ErrorCount',
+        Unit: Unit.Count,
+      })
+    })
+
+    it('should be chainable with dimensions', () => {
+      const result = logger
+        .increment('RequestCount')
+        .dimensions({ ServiceName: 'AuthService', Region: 'us-east-1' })
+
+      expect(typeof result.info).toBe('function')
+    })
+
+    it('should be chainable with namespace', () => {
+      const result = logger
+        .increment('RequestCount')
+        .namespace('CustomApp/Metrics')
+
+      expect(typeof result.info).toBe('function')
+    })
+
+    it('should work with all chaining methods', () => {
+      logger
+        .increment('LoginAttempts')
+        .namespace('MyApp/Auth')
+        .dimensions({ ServiceName: 'AuthService', Environment: 'production' })
+        .info({ userId: '12345' }, 'User login attempt')
+
+      expect(mockLogger.info).toHaveBeenCalledTimes(1)
+
+      const [logObject, message] = mockLogger.info.mock.calls[0] as any
+      expect(message).toBe('User login attempt')
+      expect(logObject.LoginAttempts).toBe(1)
+      expect(logObject.userId).toBe('12345')
+      expect(logObject.ServiceName).toBe('AuthService')
+      expect(logObject.Environment).toBe('production')
+      expect(logObject._aws.CloudWatchMetrics[0].Namespace).toBe('MyApp/Auth')
+      expect(logObject._aws.CloudWatchMetrics[0].Metrics[0]).toEqual({
+        Name: 'LoginAttempts',
+        Unit: Unit.Count,
+      })
+    })
+
+    it('should work with different log levels', () => {
+      const metricLogger = logger.increment('ProcessedItems')
+
+      metricLogger.info('Item processed')
+      metricLogger.debug('Debug: item processed')
+      metricLogger.warn('Warning: slow processing')
+
+      expect(mockLogger.info).toHaveBeenCalledTimes(1)
+      expect(mockLogger.debug).toHaveBeenCalledTimes(1)
+      expect(mockLogger.warn).toHaveBeenCalledTimes(1)
+
+      // All should have the same metric structure
+      const [infoLog] = mockLogger.info.mock.calls[0] as any
+      const [debugLog] = mockLogger.debug.mock.calls[0] as any
+      const [warnLog] = mockLogger.warn.mock.calls[0] as any
+
+      expect(infoLog.ProcessedItems).toBe(1)
+      expect(debugLog.ProcessedItems).toBe(1)
+      expect(warnLog.ProcessedItems).toBe(1)
+    })
+
+    it('should use default namespace when none specified', () => {
+      logger.increment('CacheHits').info('Cache hit')
+
+      const [logObject] = mockLogger.info.mock.calls[0] as any
+      expect(logObject._aws.CloudWatchMetrics[0].Namespace).toBe('Pino')
+    })
+
+    it('should respect custom default namespace from config', () => {
+      const plugin = pinoCloudwatchMetrics({
+        defaultNamespace: 'MyCustomApp',
+      })
+      const customLogger = plugin(mockLogger)
+
+      customLogger.increment('CustomMetric').info('Test')
+
+      const [logObject] = mockLogger.info.mock.calls[0] as any
+      expect(logObject._aws.CloudWatchMetrics[0].Namespace).toBe('MyCustomApp')
+    })
+
+    it('should allow multiple increment calls for different metrics', () => {
+      logger.increment('SuccessCount').info('Success')
+      logger.increment('FailureCount').warn('Failure')
+
+      expect(mockLogger.info).toHaveBeenCalledTimes(1)
+      expect(mockLogger.warn).toHaveBeenCalledTimes(1)
+
+      const [successLog] = mockLogger.info.mock.calls[0] as any
+      const [failureLog] = mockLogger.warn.mock.calls[0] as any
+
+      expect(successLog.SuccessCount).toBe(1)
+      expect(failureLog.FailureCount).toBe(1)
+    })
+  })
+
   describe('logging with metrics', () => {
     it('should call underlying logger.info with EMF format', () => {
       logger

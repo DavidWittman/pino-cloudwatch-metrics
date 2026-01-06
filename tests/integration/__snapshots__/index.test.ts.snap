@@ -1,5 +1,10 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`pinoCloudwatchMetrics > should increment a count metric using .increment() 1`] = `
+"{"level":30,"time":1735689600000,"_aws":{"Timestamp":1735689600000,"CloudWatchMetrics":[{"Namespace":"Pino","Dimensions":[["ServiceName"]],"Metrics":[{"Name":"RequestCount","Unit":"Count"}]}]},"ServiceName":"AuthService","RequestCount":1,"msg":"Processed request"}
+"
+`;
+
 exports[`pinoCloudwatchMetrics > should log a metric in a custom namespace 1`] = `
 "{"level":50,"time":1735689600000,"_aws":{"Timestamp":1735689600000,"CloudWatchMetrics":[{"Namespace":"MilkService","Dimensions":[[]],"Metrics":[{"Name":"Latency","Unit":"Seconds"},{"Name":"FileSize","Unit":"Megabytes"}]}]},"Latency":4,"FileSize":42,"msg":"Test error log in custom namespace"}
 "

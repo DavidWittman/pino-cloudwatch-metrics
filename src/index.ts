@@ -59,7 +59,11 @@ export function pinoCloudwatchMetrics({ defaultNamespace = 'Pino' } = {}) {
     // Create an extended logger prototype
     const extended = Object.create(logger)
 
-    // TODO: add .increment function for count metrics
+    extended.increment = function (metricName: string): MetricBuilder {
+      return extended.metric({
+        [metricName]: { value: 1, unit: Unit.Count },
+      })
+    }
 
     extended.metric = function (metrics: Metrics): MetricLogger {
       const ctx = {
