@@ -83,4 +83,16 @@ describe('pinoCloudwatchMetrics', () => {
     const output = await fs.promises.readFile(tmpfile, 'utf-8')
     expect(output).toMatchSnapshot()
   })
+
+  it('should increment a count metric using .increment()', async () => {
+    const logger = pinoCloudwatchMetrics()(baseLogger)
+
+    logger
+      .increment('RequestCount')
+      .dimensions({ ServiceName: 'AuthService' })
+      .info('Processed request')
+
+    const output = await fs.promises.readFile(tmpfile, 'utf-8')
+    expect(output).toMatchSnapshot()
+  })
 })

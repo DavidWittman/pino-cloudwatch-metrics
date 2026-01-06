@@ -58,6 +58,7 @@ export type Dimensions = Record<string, string | number>
 
 export interface MetricLogger extends Logger {
   metric(metrics: Record<string, MetricValue | number>): MetricBuilder
+  increment(metricName: string): MetricBuilder
 }
 
 export interface MetricBuilder extends Logger {
