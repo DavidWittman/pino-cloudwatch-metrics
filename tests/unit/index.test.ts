@@ -180,6 +180,19 @@ describe('pinoCloudwatchMetrics', () => {
       })
     })
 
+    it('should work with parameter interpolation', () => {
+      logger
+        .increment('LoginAttempts')
+        .info('User login attempt #%d by %s', 2, 'fred')
+
+      expect(mockLogger.info).toHaveBeenCalledTimes(1)
+
+      const [logObject, message, ...args] = mockLogger.info.mock.calls[0] as any
+      expect(message).toBe('User login attempt #%d by %s')
+      expect(logObject.LoginAttempts).toBe(1)      
+      expect(args).toStrictEqual([2, 'fred'])
+    })
+
     it('should work with different log levels', () => {
       const metricLogger = logger.increment('ProcessedItems')
 

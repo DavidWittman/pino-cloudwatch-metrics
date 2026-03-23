@@ -101,6 +101,7 @@ export function pinoCloudwatchMetrics({ defaultNamespace = 'Pino' } = {}) {
             obj = objOrMsg
           } else if (typeof objOrMsg === 'string') {
             msg = objOrMsg
+            args.unshift(maybeMsg)
           }
 
           const merged = { ...emf, ...obj }
