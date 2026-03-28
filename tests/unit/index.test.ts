@@ -189,7 +189,7 @@ describe('pinoCloudwatchMetrics', () => {
 
       const [logObject, message, ...args] = mockLogger.info.mock.calls[0] as any
       expect(message).toBe('User login attempt #%d by %s')
-      expect(logObject.LoginAttempts).toBe(1)      
+      expect(logObject.LoginAttempts).toBe(1)
       expect(args).toStrictEqual([2, 'fred'])
     })
 
