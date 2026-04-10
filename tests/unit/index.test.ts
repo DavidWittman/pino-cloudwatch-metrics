@@ -325,6 +325,96 @@ describe('pinoCloudwatchMetrics', () => {
     })
   })
 
+  describe('rollup method', () => {
+    it('should exist on a metric builder', () => {
+      const metricBuilder = logger.metric({ RequestCount: 1 })
+      expect(typeof metricBuilder.rollup).toBe('function')
+    })
+
+    it('should be chainable', () => {
+      const result = logger
+        .metric({ RequestCount: 1 })
+        .dimensions({ ServiceName: 'AuthService', Region: 'us-east-1' })
+        .rollup(['ServiceName'], [])
+
+      expect(typeof result.info).toBe('function')
+    })
+
+    it('should add rollup dimension sets to the EMF Dimensions array', () => {
+      logger
+        .metric({ RequestCount: 1 })
+        .dimensions({ ServiceName: 'AuthService', Region: 'us-east-1' })
+        .rollup(['ServiceName'], [])
+        .info('Rollup test')
+
+      expect(mockLogger.info).toHaveBeenCalledTimes(1)
+
+      const [logObject] = mockLogger.info.mock.calls[0] as any
+      expect(logObject._aws.CloudWatchMetrics[0].Dimensions).toEqual([
+        ['ServiceName', 'Region'],
+        ['ServiceName'],
+        [],
+      ])
+    })
+
+    it('should support a single rollup to an empty dimension set (global aggregate)', () => {
+      logger
+        .metric({ RequestCount: 1 })
+        .dimensions({ ServiceName: 'AuthService' })
+        .rollup([])
+        .info('Aggregate test')
+
+      const [logObject] = mockLogger.info.mock.calls[0] as any
+      expect(logObject._aws.CloudWatchMetrics[0].Dimensions).toEqual([
+        ['ServiceName'],
+        [],
+      ])
+    })
+
+    it('should support multiple chained rollup calls', () => {
+      logger
+        .metric({ RequestCount: 1 })
+        .dimensions({
+          ServiceName: 'AuthService',
+          Region: 'us-east-1',
+          Env: 'prod',
+        })
+        .rollup(['ServiceName', 'Region'])
+        .rollup(['ServiceName'], [])
+        .info('Multi-rollup test')
+
+      const [logObject] = mockLogger.info.mock.calls[0] as any
+      expect(logObject._aws.CloudWatchMetrics[0].Dimensions).toEqual([
+        ['ServiceName', 'Region', 'Env'],
+        ['ServiceName', 'Region'],
+        ['ServiceName'],
+        [],
+      ])
+    })
+
+    it('should not modify the Dimensions array when no rollup is set', () => {
+      logger
+        .metric({ RequestCount: 1 })
+        .dimensions({ ServiceName: 'AuthService' })
+        .info('No rollup test')
+
+      const [logObject] = mockLogger.info.mock.calls[0] as any
+      expect(logObject._aws.CloudWatchMetrics[0].Dimensions).toEqual([
+        ['ServiceName'],
+      ])
+    })
+
+    it('should be chainable with namespace', () => {
+      const result = logger
+        .metric({ RequestCount: 1 })
+        .dimensions({ ServiceName: 'AuthService' })
+        .rollup([])
+        .namespace('MyApp/Metrics')
+
+      expect(typeof result.info).toBe('function')
+    })
+  })
+
   describe('plugin configuration', () => {
     it('should use custom default namespace', () => {
       const plugin = pinoCloudwatchMetrics({

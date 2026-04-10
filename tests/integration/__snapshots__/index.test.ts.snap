@@ -19,3 +19,8 @@ exports[`pinoCloudwatchMetrics > should log a metric with no dimensions 1`] = `
 "{"level":30,"time":1735689600000,"_aws":{"Timestamp":1735689600000,"CloudWatchMetrics":[{"Namespace":"Pino","Dimensions":[[]],"Metrics":[{"Name":"Latency","Unit":"Milliseconds"},{"Name":"RequestCount","Unit":"None"}]}]},"Latency":200,"RequestCount":5,"msg":"Test log with no dimensions in default namespace"}
 "
 `;
+
+exports[`pinoCloudwatchMetrics > should log a metric with rollup dimension sets 1`] = `
+"{"level":30,"time":1735689600000,"_aws":{"Timestamp":1735689600000,"CloudWatchMetrics":[{"Namespace":"Pino","Dimensions":[["ServiceName","Region"],["ServiceName"],[]],"Metrics":[{"Name":"RequestCount","Unit":"None"},{"Name":"Latency","Unit":"Milliseconds"}]}]},"ServiceName":"MilkService","Region":"us-east-1","RequestCount":5,"Latency":200,"msg":"Test log with rollup dimensions"}
+"
+`;

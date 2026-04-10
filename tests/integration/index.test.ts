@@ -95,4 +95,20 @@ describe('pinoCloudwatchMetrics', () => {
     const output = await fs.promises.readFile(tmpfile, 'utf-8')
     expect(output).toMatchSnapshot()
   })
+
+  it('should log a metric with rollup dimension sets', async () => {
+    const logger = pinoCloudwatchMetrics()(baseLogger)
+
+    logger
+      .metric({
+        RequestCount: 5,
+        Latency: { value: 200, unit: Unit.Milliseconds },
+      })
+      .dimensions({ ServiceName: 'MilkService', Region: 'us-east-1' })
+      .rollup(['ServiceName'], [])
+      .info('Test log with rollup dimensions')
+
+    const output = await fs.promises.readFile(tmpfile, 'utf-8')
+    expect(output).toMatchSnapshot()
+  })
 })

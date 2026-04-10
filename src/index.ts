@@ -15,10 +15,12 @@ function buildEMF({
   metrics,
   dimensions,
   namespace,
+  rollupDimensions,
 }: {
   metrics: Metrics
   dimensions: Dimensions
   namespace: string
+  rollupDimensions: string[][]
 }): EmbeddedMetricFormat {
   const metricDefs = Object.entries(metrics).map(([name, v]) => ({
     Name: name,
@@ -37,13 +39,18 @@ function buildEMF({
     Object.entries(dimensions).map(([key, value]) => [key, String(value)]),
   )
 
+  const dimensionSets =
+    rollupDimensions.length > 0
+      ? [Object.keys(dimensions), ...rollupDimensions]
+      : [Object.keys(dimensions)]
+
   return {
     _aws: {
       Timestamp: Date.now(),
       CloudWatchMetrics: [
         {
           Namespace: namespace,
-          Dimensions: [Object.keys(dimensions)],
+          Dimensions: dimensionSets,
           Metrics: metricDefs,
         },
       ],
@@ -70,6 +77,7 @@ export function pinoCloudwatchMetrics({ defaultNamespace = 'Pino' } = {}) {
         metrics,
         dimensions: {},
         namespace: defaultNamespace,
+        rollupDimensions: [] as string[][],
       }
 
       const proxy = Object.create(logger)
@@ -81,6 +89,11 @@ export function pinoCloudwatchMetrics({ defaultNamespace = 'Pino' } = {}) {
 
       proxy.namespace = (ns: string): MetricBuilder => {
         ctx.namespace = ns
+        return proxy
+      }
+
+      proxy.rollup = (...dimensionSets: string[][]): MetricBuilder => {
+        ctx.rollupDimensions = [...ctx.rollupDimensions, ...dimensionSets]
         return proxy
       }
 

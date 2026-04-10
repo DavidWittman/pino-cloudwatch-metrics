@@ -9,6 +9,7 @@ A Pino plugin that enables seamless integration with AWS CloudWatch Metrics usin
 - 🔧 **Flexible**: Support for custom namespaces, dimensions, and metric units
 - 🎯 **Simple API**: Chainable, intuitive method calls
 - 📦 **Lightweight**: Minimal dependencies, built on top of Pino
+- 🔄 **Dimension rollups**: Aggregate metrics across multiple dimension sets in a single log line
 
 ## Installation
 
@@ -98,6 +99,42 @@ logger.metric({
   Environment: 'production'
 })
 .info({ requestId: 'abc123' }, 'User authenticated')
+```
+
+### Rolling Up Dimensions
+
+CloudWatch supports publishing the same metric under multiple dimension sets from a single log entry. This is useful when you want to query metrics both at a granular level (e.g. per-service per-region) and at a rolled-up level (e.g. per-service, or globally) without emitting multiple log lines.
+
+Use `.rollup()` to specify additional, less-granular dimension sets. The dimensions set via `.dimensions()` is always the most specific set; each set passed to `.rollup()` is appended as an additional aggregation level:
+
+```typescript
+logger
+  .metric({ RequestCount: 1, Latency: { value: 200, unit: Unit.Milliseconds } })
+  .dimensions({ ServiceName: 'AuthService', Region: 'us-east-1' })
+  .rollup(
+    ['ServiceName'], // aggregate across all regions for this service
+    [],              // aggregate globally across all dimensions
+  )
+  .info('Request processed')
+```
+
+This produces a single log line with three dimension sets, causing CloudWatch to publish three separate metric time series:
+
+| Dimension set | What it aggregates |
+|---|---|
+| `["ServiceName", "Region"]` | Per-service, per-region (most granular) |
+| `["ServiceName"]` | Per-service across all regions |
+| `[]` | Global across all services and regions |
+
+`.rollup()` is chainable and can be called multiple times — dimension sets accumulate across calls:
+
+```typescript
+logger
+  .increment('Errors')
+  .dimensions({ ServiceName: 'AuthService', Region: 'us-east-1' })
+  .rollup(['ServiceName'])
+  .rollup([])
+  .warn('Something went wrong')
 ```
 
 ## How It Works
