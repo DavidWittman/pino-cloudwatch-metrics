@@ -64,4 +64,5 @@ export interface MetricLogger extends Logger {
 export interface MetricBuilder extends Logger {
   dimensions(dimensions: Dimensions): this
   namespace(namespace: string): this
+  rollup(...dimensionSets: string[][]): this
 }
